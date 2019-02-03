@@ -1,4 +1,4 @@
-# Private Blockchain Notary Service
+#Private Blockchain Notary Service
 
 In this project, you will build a Star Registry Service that allows users to claim ownership of their favorite star in the night sky. 
 
