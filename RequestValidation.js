@@ -24,6 +24,12 @@ class ValidationRequest {
 		return this.getRemainingTimeWindow() >= 0;
 	}
 	
+	// generate request message
+
+	generateMessage(){
+		return this.address + ":" + this.requestTimeStamp +":" + "starRegistry";
+	}
+	
 }
 
 module.exports.ValidationRequest = ValidationRequest;
