@@ -2,13 +2,27 @@
 |  Class with a constructor for Request Object 	   |
 |  ===============================================*/
 
-class Block {
-	constructor(parWalletAddress, parRequestTimeStamp, parMessage, parValidationWindow){
-		this.walletAddress = parWalletAddress;
-		this.requestTimeStamp = parRequestTimeStamp;
-		this.message = parMessage;
-		this.validationWindow = parValidationWindow;
+class ValidationRequest {
+	constructor(address){
+		this.address = address;		
+		this.requestTimeStamp = this.currentTimeStamp();
+		this.message = this.generateMessage();
+		this.validationWindow = defaultWindow;
 	}
+
+
+	// get remaining time window
+
+	getRemainingTimeWindow(){
+		return (parseInt(this.requestTimeStamp, 10) + defaultWindow) - this.currentTimeStamp();
+	}
+	
+	// Check if request is still valid
+
+	isRequestValid(){
+		return this.getRemainingTimeWindow() >= 0;
+	}
+	
 }
 
-module.exports.Block = Block;
+module.exports.ValidationRequest = ValidationRequest;
