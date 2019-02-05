@@ -8,7 +8,7 @@ class ValidationRequest {
 	constructor(address){
 		this.address = address;		
 		this.requestTimeStamp = this.currentTimeStamp();
-		this.message = this.generateMessage();
+		this.message = this.getMessage();
 		this.validationWindow = defaultWindow;
 	}
 
@@ -26,7 +26,7 @@ class ValidationRequest {
 	
 	// generate request message
 
-	generateMessage(){
+	getMessage(){
 		return this.address + ":" + this.requestTimeStamp +":" + "starRegistry";
 	}
 	
