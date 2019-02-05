@@ -2,6 +2,8 @@
 |  Class with a constructor for Request Object 	   |
 |  ===============================================*/
 
+const defaultWindow = 300;
+
 class ValidationRequest {
 	constructor(address){
 		this.address = address;		
@@ -9,7 +11,6 @@ class ValidationRequest {
 		this.message = this.generateMessage();
 		this.validationWindow = defaultWindow;
 	}
-
 
 	// get remaining time window
 
