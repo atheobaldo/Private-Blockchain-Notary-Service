@@ -1,14 +1,11 @@
-/* ===== Request Object Class ======================
-|  Class with a constructor for Request Object 	   |
-|  ===============================================*/
-
 const defaultWindow = 300;
 
-class ValidationRequest {
+class RequestValidation {
+	
 	constructor(address){
-		this.address = address;		
+		this.address 		  = address;		
 		this.requestTimeStamp = this.currentTimeStamp();
-		this.message = this.getMessage();
+		this.message 		  = this.getMessage();
 		this.validationWindow = defaultWindow;
 	}
 
@@ -29,7 +26,11 @@ class ValidationRequest {
 	getMessage(){
 		return this.address + ":" + this.requestTimeStamp +":" + "starRegistry";
 	}
-	
+
+	currentTimeStamp(){
+		return new Date().getTime().toString().slice(0,-3);
+	}
+
 }
 
-module.exports.ValidationRequest = ValidationRequest;
+module.exports.RequestValidation = RequestValidation;

@@ -13,7 +13,9 @@ class Blockchain {
         this.generateGenesisBlock();
     }
 
-    // Helper method to create a Genesis Block (always with height= 0)
+    /**
+     * Helper method to create a Genesis Block (always with height= 0)
+     */
 
     generateGenesisBlock(){ 
         this.getBlockHeight().then((height) => {
@@ -28,8 +30,10 @@ class Blockchain {
         }).catch((err) => { console.log(err); });
     }
 
+    /**
+     * Get block height, it is a helper method that return the height of the blockchain
+     */
 
-    // Get block height, it is a helper method that return the height of the blockchain
     async getBlockHeight() {
         return new Promise((resolve, reject) => { 
             db.getBlocksCountFromDBData()
@@ -38,7 +42,10 @@ class Blockchain {
         });
     }
 
-    // Add new block
+    /**
+     * Add new block
+     */
+
     async addBlock(block) {
         return new Promise((resolve, reject) => {
             let newblock = block;
@@ -78,8 +85,10 @@ class Blockchain {
         });
       }
 
-
-    // Get Block By Height
+    /**
+     * Get Block By Height
+     */
+    
     async getBlockByIndex(height) {
         return new Promise((resolve, reject) => { 
             db.getBlockByIndexFromDBData(height)
@@ -88,8 +97,10 @@ class Blockchain {
         });
     }
 
-
-    // Get block by hash
+    /**
+     * Get block by hash
+     */
+    
     async getBlockByHash(hash) {
         return new Promise((resolve, reject) => {  
             db.getBlockByHashFromDBData (hash)
@@ -98,8 +109,10 @@ class Blockchain {
         });
     }
 
+    /**
+     * Get block by address
+     */
     
-    // Get block by address
     async getBlockByWallet(address) {
         return new Promise((resolve, reject) => { 
             db.getBlockByWalletFromDBData(address)
@@ -114,8 +127,10 @@ class Blockchain {
         });
     }
  
+    /**
+    * Decoded story to ascii
+    */
 
-    // Decoded story to ascii
     async getBlockDecoded(block) {
         if(block.height != undefined && block.height > 0)
             block.body.star.storyDecoded = Buffer.from(block.body.star.story, 'hex').toString('ascii');

@@ -1,7 +1,7 @@
 const SHA256           = require('crypto-js/sha256');
 const BlockClass       = require('./Block.js');
 const BlockChain       = require('./BlockChain.js');
-const MemPoolClass     = require('./Mempool.js');
+const RequestPoolClass = require('./RequestPool.js');
 
 const { check, validationResult } = require('express-validator/check');
 
@@ -14,10 +14,11 @@ class BlockController {
      * Constructor to create a new BlockController, you need to initialize here all your endpoints
      * @param {*} app 
      */
+
     constructor(app) {
-        this.myBlockChain  = new BlockChain.Blockchain();
-        this.memPoolClass  = new MemPoolClass.Mempool();
-        this.app           = app;
+        this.myBlockChain     = new BlockChain.Blockchain();
+        this.RequestPoolClass = new RequestPoolClass.RequestPool();
+        this.app              = app;
         this.postRequestValidation();
         this.postMessageSignatureValidate();
         this.postNewBlock();
@@ -27,8 +28,9 @@ class BlockController {
     }
 
     /**
-     * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
+     * Implement a GET Endpoint to retrieve a block by index, url: "http://localhost:8000/block/:index"
      */
+     
     getBlockByIndex() {
         this.app.get("/block/:index", 
         [
@@ -47,6 +49,10 @@ class BlockController {
         });
     }
 
+    /**
+     * Implement a GET Endpoint to retrieve a block by hash, url: "http://localhost:8000/stars/hash:hash"
+     */
+
     getBlockByHash() {
         this.app.get('/stars/hash::hash', 
         [
@@ -64,6 +70,10 @@ class BlockController {
                 .catch((err)  => { res.send( JSON.parse( JSON.stringify({ 'error' : err.message }).toString() )) });
         });
     }
+
+    /**
+     * Implement a GET Endpoint to retrieve a block by hash, url: "http://localhost:8000/stars/address:address"
+     */
 
     getBlockByWallet() {
         this.app.get('/stars/address::address', 
@@ -85,7 +95,7 @@ class BlockController {
 
 
     /**
-     * Implement a POST Endpoint to add a new Block, url: "/api/block"
+     * Implement a POST Endpoint to add a new Block, url: "http://localhost:8000/block"
      */
 
     postNewBlock() {
@@ -102,19 +112,34 @@ class BlockController {
             let   body = req.body;
             const errors = validationResult(req);
 
-            if (!errors.isEmpty()) {
+            if (!errors.isEmpty()) 
                 return res.status(422).json({ errors: errors.array() });
-            }
+            
+            this.RequestPoolClass.getRequestByAddress(req.body.address)
+                .then((result) => { 
 
-            const newBlock = new BlockClass.Block(body);
+                    if(result == undefined || !result.registerStar)
+                        res.send( JSON.parse( JSON.stringify({ 'error' : 'No valid request found OR request is timed out OR you have already registerd star using this existing request for address ' + req.body.address +'. Please create one before registering your star.' }).toString() ))
+                    else {
+                       const newBlock = new BlockClass.Block(body);
 
-           this.myBlockChain.addBlock(newBlock)
-                .then((result) => { res.send( JSON.parse(result)); })
-                .catch((err)   => { res.send( JSON.parse( JSON.stringify({ 'error' : err.message }).toString() )) });
-
+                       this.myBlockChain.addBlock(newBlock)
+                            .then((resultAdd) => { 
+                                this.RequestPoolClass.removeRequestValidation(req.body.address)
+                                    .then((resultRemove) => { })
+                                    .catch((err)   => { res.send( JSON.parse( JSON.stringify({ 'error' : err.message }).toString() )) });
+                                res.send( JSON.parse(resultAdd));
+                            }).catch((err)   => { res.send( JSON.parse( JSON.stringify({ 'error' : err.message }).toString() )) });
+                    }
+                })
+                .catch((err)   => { return res.json( {'error' : err.message } ) });
         });
     }
 
+
+    /**
+     * Implement a POST Endpoint to add a new request, url: "http://localhost:8000/requestValidation"
+     */
 
     postRequestValidation() {
         this.app.post("/requestValidation", 
@@ -128,13 +153,18 @@ class BlockController {
                 return res.status(422).json({ errors: errors.array() });
             }
 
-            this.memPoolClass.addRequestValidation(req.body.address)
+            this.RequestPoolClass.addRequestValidation(req.body.address)
                 .then((result) => { return res.json( JSON.parse(result) ) })
-                .catch((err)   => { return res.json( {'error' : err.message} ) });
+                .catch((err)   => { return res.json( {'error' : err.message } ) });
 
         });    
     }
 
+
+
+   /**
+     * Implement a POST Endpoint to valid a request, url: "http://localhost:8000/message-signature/validate"
+     */
 
     postMessageSignatureValidate() {
         this.app.post("/message-signature/validate", 
@@ -149,7 +179,7 @@ class BlockController {
                 return res.status(422).json({ errors: errors.array() });
             }
 
-            this.memPoolClass.validateRequestByWallet(JSON.stringify(req.body).toString())
+            this.RequestPoolClass.validateRequestByWallet(JSON.stringify(req.body).toString())
                 .then((result) => { return res.json( JSON.parse(result) ) })
                 .catch((err)   => { return res.json( JSON.parse( JSON.stringify({ 'error' : err.message }).toString() )) });
             
