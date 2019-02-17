@@ -7,11 +7,11 @@ Creates a Blockchain dataset that allow you to store a Star:
 - The application will persist the data (using LevelDB).
 - The application will allow users to identify the Star data with the owner.
 
-Creates a Mempool component:
+Creates a RequestPool component:
 
-- The mempool component will store temporal validation requests for 5 minutes (300 seconds).
-- The mempool component will store temporal valid requests for 30 minutes (1800 seconds).
-- The mempool component will manage the validation time window.
+- The component will store temporal validation requests for 5 minutes (300 seconds).
+- The component will store temporal valid requests for 30 minutes (1800 seconds).
+- The component will manage the validation time window.
 
 Creates a REST API that allows users to interact with the application:
 
