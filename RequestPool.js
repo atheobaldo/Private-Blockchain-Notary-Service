@@ -28,7 +28,7 @@ class RequestPool {
 	async removeRequestValidation(address) { 
 	    	return new Promise((resolve, reject) => { 
 				db.del(address).then((value)=>{
-					reject(JSON.parse( JSON.stringify({'removeRequestValidation' : 'Request for address ' + address + 'removed.'} ).toString()));
+					resolve(JSON.parse( JSON.stringify({'removeRequestValidation' : 'Request for address ' + address + 'removed.'} ).toString()));
 				}).catch((err => {
 					reject(JSON.parse( JSON.stringify({'error' : err.message} ).toString()));
 				}));
@@ -109,7 +109,7 @@ class RequestPool {
 												"address": address,
 												"requestTimeStamp": existingVR.requestTimeStamp,
 												"message": existingVR.message,
-												"validationWindow": existingVR.validationWindow,
+												"validationWindow": existingVR.getRemainingTimeWindow(),
 												"messageSignature": true
 											}
 										};

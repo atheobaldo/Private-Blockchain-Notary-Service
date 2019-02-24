@@ -30,7 +30,7 @@ class BlockController {
     /**
      * Implement a GET Endpoint to retrieve a block by index, url: "http://localhost:8000/block/:index"
      */
-     
+
     getBlockByIndex() {
         this.app.get("/block/:index", 
         [

@@ -9,7 +9,7 @@ const db           = new LevelSandbox.LevelSandbox();
 
 class Blockchain {
 
-    constructor() {
+    constructor() {     
         this.generateGenesisBlock();
     }
 
@@ -22,7 +22,7 @@ class Blockchain {
             if(height === 0){
                 const genesis = new BlockClass.Block('First block in the chain - Genesis block');
 
-                this.addBlock(JSON.stringify(genesis).toString())
+                this.addBlock(genesis)
                     .then((result) => { return result; } )
                     .catch((err)   => { return err;    } );
 
@@ -51,7 +51,7 @@ class Blockchain {
             let newblock = block;
 
             this.getBlockHeight()
-                .then((height) => { 
+                .then((height) => {                 
                     newblock.height    = height; 
                     newblock.timeStamp = new Date().getTime().toString().slice(0,-3);
 
@@ -81,7 +81,8 @@ class Blockchain {
                           .catch((err)   => { reject(err);     }); 
                     }
                 })
-                .catch((err) => { reject(err); });   
+                .catch((err) => { 
+                    reject(err); });   
         });
       }
 
@@ -92,7 +93,7 @@ class Blockchain {
     async getBlockByIndex(height) {
         return new Promise((resolve, reject) => { 
             db.getBlockByIndexFromDBData(height)
-                .then((block) => { resolve(this.getBlockDecoded(block)); })
+                .then((block) => { resolve(block); })
                 .catch((err)  => { reject(err); });
         });
     }
@@ -104,7 +105,7 @@ class Blockchain {
     async getBlockByHash(hash) {
         return new Promise((resolve, reject) => {  
             db.getBlockByHashFromDBData (hash)
-                .then((block) => { resolve(this.getBlockDecoded(block)); })
+                .then((block) => { resolve(block); })
                 .catch((err)  => { reject(err); });
         });
     }
@@ -117,10 +118,6 @@ class Blockchain {
         return new Promise((resolve, reject) => { 
             db.getBlockByWalletFromDBData(address)
                 .then((blocks) => { 
-                    for(let block in blocks){
-                        block = this.getBlockDecoded(block);
-                    }
-
                     resolve(blocks); })
                 .catch((err)  => { reject(err); });            
 
@@ -131,12 +128,6 @@ class Blockchain {
     * Decoded story to ascii
     */
 
-    async getBlockDecoded(block) {
-        if(block.height != undefined && block.height > 0)
-            block.body.star.storyDecoded = Buffer.from(block.body.star.story, 'hex').toString('ascii');
-
-        return block;
-    }
 
 }
 

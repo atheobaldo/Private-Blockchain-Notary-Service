@@ -10,11 +10,10 @@ class LevelSandbox {
 
     constructor() { }
 
-
     // Get data from levelDB with key (Promise)
     async getBlockByIndexFromDBData(key) { 
         return new Promise(function(resolve, reject) {
-            db.get(key, (err, data) => {
+            db.get(key, (err, data) => {                
                 if(err){
                     if (err.type == 'NotFoundError') {
                         resolve( JSON.parse( JSON.stringify( { 'error' : "Block: " + key + " not found!" } ).toString()) );
@@ -22,7 +21,11 @@ class LevelSandbox {
                         reject(err);
                     }
                 }else { 
-                    resolve(JSON.parse(data));
+                    let block = JSON.parse(data);
+                    if(block.height != undefined && block.height > 0){
+                        block.body.star.storyDecoded = Buffer.from(block.body.star.story, 'hex').toString('ascii'); 
+                    }
+                    resolve(block);
                 }
             });
         });
@@ -37,8 +40,12 @@ class LevelSandbox {
             .on('data', function (result) {
                 let data = JSON.parse(result.value);
 
-                if(data.hash === hash)               
+                if(data.hash === hash){   
+                    if(data.height != undefined && data.height > 0)
+                        data.body.star.storyDecoded = Buffer.from(data.body.star.story, 'hex').toString('ascii');         
                     block = data;
+                }
+
             })
             .on('error', function (err) {
                 reject(resolve(JSON.parse( JSON.stringify({'error' : err.message} ).toString())));
@@ -60,14 +67,18 @@ class LevelSandbox {
         return new Promise(function (resolve, reject) {
             db.createReadStream()
             .on('data', function (result) {
-
                 let data = JSON.parse(result.value);
-                if (data.height > 0 && data.body.address === address) {
-                    blocks.push(data);
+
+                if(data.height != undefined && data.height > 0){
+                    data.body.star.storyDecoded = Buffer.from(data.body.star.story, 'hex').toString('ascii');
+
+                    if(data.body.address === address)
+                      blocks.push(data);  
                 }
+                
             })
             .on('error', function (err) {
-                reject(resolve(JSON.parse( JSON.stringify({'error' : err.message} ).toString())));
+                reject(JSON.parse( JSON.stringify({'error' : err.message} ).toString()));
             })
             .on('close', () => {
                 resolve(blocks);
@@ -97,7 +108,7 @@ class LevelSandbox {
                 count++;
               })
               .on('error', function(err) {
-                reject(resolve(JSON.parse( JSON.stringify({'error' : err.message} ).toString())));
+                reject(JSON.parse( JSON.stringify({'error' : err.message} ).toString()));
               })
               .on('close', function() {
                 resolve(count);
